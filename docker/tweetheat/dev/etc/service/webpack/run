@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+. /etc/environment
+cd /workspace/src/frontend
+# This allows webpack to find npm modules, there's probably a better way to do this
+npm link $(ls `npm root -g`) --save
+TWEETHEAT_VERSION="${TWEETHEAT_VERSION}" exec webpack

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Abort script at first error, follow the fail fast principle (https://en.wikipedia.org/wiki/Fail-fast)
+set -e
+
+# The directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DOCKERFILE_DIR="${DIR}/../docker/examples/php"
+TAG="naz/iac-php-component:latest"
+
+source "${DIR}/common"
+
+# Always call the error function on the ERR signal, this is used in conjuntion with set -e and gives us some
+# extra debugging information
+trap 'on_error ${LINENO}' ERR
+
+echo_inf "Step 1. Checking for prerequisite commands"
+assert_command_exists docker "To install Docker on your system, go to https://docs.docker.com/engine/installation/"
+
+echo_inf "Step 2. Building image"
+substep_text docker build -t "${TAG}" "${DOCKERFILE_DIR}"
+
+echo_inf "Step 3. Running image"
+docker kill php-component &>/dev/null || true
+docker rm php-component &>/dev/null || true
+
+docker run --name "php-component" -e UID=$UID -e GID=$GID --rm -p8080:8080 -v "`pwd`:/srv" -it "${TAG}" $@

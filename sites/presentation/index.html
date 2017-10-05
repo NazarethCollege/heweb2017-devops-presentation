@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+        <title>DevOps: Infrastructure as Code</title>
+        <meta charset="utf-8" />
+		<link rel="stylesheet" href="styles/reveal.css" />
+        <link rel="stylesheet" href="styles/theme.css" />
+        <link rel="stylesheet" href="styles/github.css" />
+        <link rel="stylesheet" href="styles/font-awesome.min.css" />
+        <style>
+            .highlighted {
+                color: rgb(247, 245, 163);
+                text-shadow: 1px 1px rgb(191, 149, 193), -1px -1px rgb(24, 19, 25);
+            }
+
+            section {
+                text-align:left;
+            }
+        </style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+                <section style='text-align:center;'>
+                    <h2>DevOps: Infrastructure as Code</h2>  
+                    <aside class='notes'>
+                        Hello, my name's Dave Lafferty.  I've been working at Nazareth College as a Senior Web Developer for a little over 5 years, and I write beautiful, elegent code.
+                    </aside>
+                </section>
+                <section>
+                    <img src='media/life-of-developer.png' />
+                    <aside class='notes'>
+                        All the time, every time.
+                    </aside>
+                </section>
+                <section>
+                    <img src='media/forced-perspective.jpg' />
+                    <aside class='notes'>
+                        If you don't believe me, ask my coworkers.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>complexity is inevitable</h2>
+                    <aside class='notes'>
+                        Software development is messy, it's full of unknowns and compromises, and we tend to downplay how difficult it is to switch between teams or projects because admitting that your code or codebase is confusing carries the subtext that you're a bad developer, or worse:  incompetent.  But proficiency takes time.  Anecdotally, many software firms expect a developer to feel comfortable  
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>developer tenure</h2>
+                    <div class='timeline'>
+                        <div class='date'>
+                            <h3>6 months</h3>
+                            <span>comfortable</span>
+                        </div>
+                        <div class='date fragment'>
+                            <h3>1 year</h3>
+                            <span>proficient</span>
+                        </div>
+                        <div class='date double fragment'>
+                            <h3>3 years</h3>
+                            <span>moved on (average)</span>
+                        </div>
+                    </div>
+                    <aside class='notes'>
+                        - six months after hire, and proficient, really up to speed after
+                        - one year
+
+                        This is a staggering amount of time, you basically don't know how productive someone will be until a year after you've hired them.  And during that time, you want developers to be learning the business, not struggling with technology.
+
+                        And then the kicker, is that average employee tenure in IT is only 
+
+                        - about three years. 
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>module-driven development</h2>
+                    <ul class='fragment modulelist'>
+                        <li class='title'>
+                            <dt>repository</dt>
+                            <dd>new packages/day</dd>
+                        </li>
+                        <li>
+                            <dt>Rubygems.org</dt>
+                            <dd>27</dd>
+                        </li>
+                        <li>
+                            <dt>PyPI</dt>
+                            <dd>75</dd>
+                        </li>
+                        <li>
+                            <dt>Maven Central</dt>
+                            <dd>80</dd>
+                        </li>
+                        <li>
+                            <dt>Packagist</dt>
+                            <dd>119</dd>
+                        </li>
+                        <li class='fragment highlighted'>
+                            <dt>npm</dt>
+                            <dd>470</dd>
+                        </li>
+                    </ul>
+                    <aside class='notes'>
+                        But the current trend is to increase and abstract complexity, and farm out functionality to third-party plugins.  And to focus on what really differentiates you.  To place some context around this claim:
+
+                        - modulecounts.com gives statistics on how many packages per day are added to popular package repositories, here are some numbers from September this year for popular web languages:
+
+                        * go over numbers
+
+                        Can anyone guess what npm is at?
+
+                        - modulecounts.com tracks 470 new packages per day.
+
+                        I don't know if I've made 470 distinct modules in my lifetime, and npm is growing at that number daily!  And this is reflective of the culture.  Modern websites are bundles of plugins, modules and frameworks with integrations written between them.  We abstract away as much as we can and because of the open source movement and these packaging platforms, we can share those abstractions with other people.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <img src='media/frameworks.png' style='background:#FFF;' />
+                    <aside class='notes'>
+                        What do you feel when you see this list?
+                        
+                        ...excitement?
+
+                        ...exasperation?
+
+                        ...dread?
+
+                        All three simultaneously?
+
+                        The growth and availability of web technology is polarizing, and while I think it's important to be skeptical and cautious when adopting new technology or ideologies, we can't be curmudgeons, this is the present and future of web development.  We need to be objective and reject or accept something on its merits.
+
+                        But if we accept that some of this technology is useful, we have to find ways to manage the ever-growing complexity of our websites.  We have to realize that software is not intuitive by default, and we have to be willing to adapt our processes and learn new paradigms, but also be thoughtful about integration, code sharing, and deployment.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>better living through devops</h2>
+                    <aside class='notes'>
+                        So my goal over the rest of this speech is to give you the tools to evaluate and use new technology through the application of DevOps, specifically within a small team.
+                    </aside>
+                </section>
+                <section style='text-align:center;' data-background-image='media/tip-of-iceberg.jpg'>
+                    <ul class='nobullet highcontrast'>
+                        <li class='fragment'>ownership of entire application</li>
+                        <li class='fragment'>expectation of consistency</li>
+                        <li class='fragment'>removal manual processes</li>
+                    </ul>
+                    <aside class='notes'>
+                        DevOps has a lot of hidden depth, it's easy to understand at a glance but really adopting it permeates all aspects of your development workflow.
+
+                        DevOps is taking ownership of your entire application, from development to deployment and monitoring.  It's never saying the phrase "it works on my machine."  It's aggressively removing manual processes, because manual processes introduce error and compartmentalize knowledge.  
+
+                        This is a big topic, and we at Nazareth are a small team.  When I have too much decision and choice I tend to get decision paralysis.  So I've made a goal and I apply it to all aspects of my workflow. 
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>sharing is caring</h2>
+                    <aside class='notes'>
+                        My test is:  am I making my application more shareable?  Shareability means other people can work on my code and contribute to it with low friction.  This has a trickle-down effect, and makes other aspects of deployment simpler.  But with this test, I can evaluate whether a new framework or technology is a good fit, and I can adjust the technology if it has other aspects I want but impacts shareability.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <img src='media/frameworks.png' style='background:#FFF;' />
+                    <aside class='notes'>
+                        So at Nazareth, the question is no longer "should we use React," but "is our UI solution (or lack of solution) affecting shareability?"  If the answer is yes, then we need to evaluate our UI library, and use DevOps to ensure our project is shareable.
+
+                        Before I talk about implementation, though, I want to go over shareability, and what I mean.  There's a big trend to try to make things obvious and intuitive, and I think that's sort of a red herring.  All digital interactions are learned and imitated.  We're not born with the pinch to zoom reflex, we learned it once and now every touch device has to use it to be successful.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <img src='media/turbotouch.jpg' />
+                    <aside class='notes'>
+                        [http://www.ign.com/articles/2006/02/22/top-10-tuesday-worst-game-controllers]
+                            
+                        Another example is game controllers.  This is an alternate controller for the super nintendo.  It boasted a better D-PAD for your thumb so you'd get less muscle fatigue and turbo toggles for the buttons.  It was ranked as the ninth worst video game controller by IGN in 2006.  But it isn't inherently worse, it's just different and gamers had become used to the weight, fit and feel of the licensed gamepads.  They had learned familiarity and this gamepad violated too many of the ingrained habits gamers had developed.  It's not that a d-pad and buttons are the most intuitive way to interact with a game.
+                    </aside>
+                </section>
+                <section style='text-align:center;' selected>
+                    <h2>familiarity, not intuitiveness</h2>
+                    <ul class='nobullet'>
+                        <li class='fragment'>applications feel similar</li>
+                        <li class='fragment'>abstract away details</li>
+                        <li class='fragment'>script complete environments</li>
+                    </ul>
+                    <aside class='notes'>
+                        So to make our code more shareable within our team, we focus on making projects feel familiar, regardless of the technologies used.  Developers should be able to move between projects with low friction because we've been thoughtful and intentional about how we build and package our application.  We do that by identifying common tasks and scripting them.  Starting a development server, creating and applying data migrations, importing test data, running unit tests, generating documentation, creating package distributions, etc... should be one script, not a series of documented or memorized commands.  The real magic, though, is setting up all the dependencies necessary to run those scripts.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>configuration management</h2>
+                    
+                    <div class='config-step'>
+                        <span>code</span>
+                        <div class='codewrap'>
+                            <i class='fa fa-chevron-right execution-point'></i>
+                            <div class='code'>
+                                <div>
+                                    <div></div>
+                                    <div></div>
+                                    <div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                                <div></div>
+                                <div></div>
+                                <div>
+                                    <div></div>
+                                    <div></div>
+                                    <div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                                <div></div>
+                                <div></div>
+                            </div>  
+                        </div>
+                    </div>
+                    
+                    <div class='network-pulse'>
+                        <div class='packet'></div>
+                        <i class='fa fa-caret-right'></i>
+                    </div>
+
+                    <div class='config-step'>
+                        <span>server</span>
+                        <div class='serverwrap'>
+                            
+                        </div>
+                    </div>
+
+                    <aside class='notes'>
+                        There are two mainstream approaches to managing dependencies automatically, one is configuration management through tools like Ansible, Puppet, and Chef to converge a system to a desired state.  This methodology reaches out to machines and adjusts them based on a desired state, I wish I had more time in this talk to go over this methodology more in-depth, but we honestly don't use configuration management tools very much except for initial configuration, to bootstrap VMs.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>containerization/embedding</h2>
+                    
+                    <div class='double config-step'>
+                        <span>bundle</span>
+                        <div class='codewrap'>
+                            <i class='fa fa-chevron-right execution-point'></i>
+                            <div class='code'>
+                                <div>
+                                    <div></div>
+                                    <div></div>
+                                    <div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                                <div></div>
+                                <div></div>
+                                <div>
+                                    <div></div>
+                                    <div></div>
+                                    <div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                                <div></div>
+                                <div></div>
+                            </div>  
+                        </div>
+                        <div class='serverwrap bundle'>
+                            
+                        </div>
+                    </div>                    
+
+                    <div class='config-step' style='margin-left:10%;'>
+                        <span>server</span>
+                        <div class='bundlewrap bundle'></div>
+                    </div>
+
+                    <aside class='notes'>
+                        The other methodology is to embed all your dependencies alongside your application.  Desktop apps have been doing this for decades  This is the containerization philosophy, and we do this at Nazareth through Docker.  For example, your website becomes one stateless binary-like package that embeds PHP, an application server, dependencies like openssl/curl/libxml, and any helper scripts.  You then completely replace your application and dependencies each time you deploy, since everything is wrapped up in one package.  
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>Intro to Docker</h2>    
+                    
+                    <pre class='fragment'><code class="docker"># Base image, contains very few utilities
+FROM busybox
+
+# Add files  
+ADD scripts /scripts
+
+# Set the script that gets called when this image is run
+ENTRYPOINT [ "/scripts/choo-choo" ]
+</code>
+                                                </pre>
+
+                    <aside class='notes'>
+                        So we recognized that this is the way we want to build applications, and the technology we use to accomplish this is Docker.  To follow best practices, Docker requires you to embed almost everything, to think about every dependency your site uses, and to write scripts to embed those dependencies.
+                    </aside>
+                </section>
+                <section>                                        
+                    <div style='height:17em;'>
+                        <video src='media/docker-scratch.mov' controls height='100%' />                            
+                    </div>
+                    <aside class='notes'>
+                        This image is now a standalone environment.  It can be called by its tag and nobody has to know the implementation details of the script.  It can also be compressed and sent to another developer and they can output the exact same train as you.
+                    </aside>
+                </section>
+                <section  style='text-align:center;'>
+                    <h2>embedding components</h2>
+
+                    <pre><code class='dockerfile'>FROM ubuntu:16.04
+                            
+RUN apt-get update && \
+    apt-get install -y \
+    sudo php7.0 php7.0-zip php7.0-mbstring php7.0-dom   
+
+ADD opt /opt
+RUN php7.0 /opt/composer-installer.php \
+    --install-dir=bin \
+    --filename=composer 
+
+ADD usr /usr
+
+ENTRYPOINT [ "/usr/local/bin/entrypoint" ]
+EXPOSE 8080</code></pre>
+                </section>
+                <section>                                        
+                    <div style='height:17em;'>
+                        <video src='media/php7.mov' controls height='100%' />                            
+                    </div>
+                    <aside class='notes'>
+                        This image is now a standalone component.  You can use it to run PHP7 websites or scripts with community or custom extensions already installed.  A frontend developer doesn't have to worry about setting up their own environment and can focus on what's important to them.  This example works easily as well for something like Webpack.  You can set up a Webpack images with common elements like a TypeScript or SASS loader.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>embedding entire environments</h2>
+
+                    <aside class='notes'>
+                        Now that we've looked at the basics of Docker, I want to share how Nazareth uses it.  We don't Dockerize individual components, we Dockerize entire logical applications and their build and development environments.  We have sort of replaced virtual machines with containers.  Having complete control over the environment means that I can easily make common interfaces to my containers that produce similar results but do very different things.  I can then compose those systems and make assumptions about how they work because of those standard interfaces.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>embedded interfaces</h2>
+
+                    <ul class='filetree'>
+                        <li class='file'>build.xml</li>
+                        <li class='file'>config/config.yml
+                        </li>
+                        <li>docker</li>
+                        <li class='file'>orchestration/deploy</li>
+                        <li>tests/
+                            <ul>
+                                <li class='file'>run-tests</li>
+                                <li class='file'>last-results.xml</li>
+                            </ul>
+                        </li>
+                        <li>workspace/
+                            <ul>
+                                <li>dev/
+                                    <ul>
+                                        <li class='file'>start-development</li>
+                                        <li class='file'>migrate</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        
+                        <li class='file'>entrypoint</li>
+                    </ul>
+
+                    <aside class='notes'>
+                        This is a layout of some of the common features all of our new projects have.  We use ant to run custom steps like building distribution packages and generating code.  Our config folder holds environment-specific information, like certificates, passwords and settings.  This is passed in at runtime.  The docker folder has environments for production and development machines.  Orchestration has all the information necessary to build and deploy versions of the application except for things like repository passwords.  Tests is a common way to run the project's test suite.  Inside workspace are development tools to start up the environments necessary to modify the code, and the entrypoint supports common arguments like "start," which starts services necessary for the application.
+
+                        Notice there's no mention of the application, nowhere does it say "start nginx" or "compile assets".  Every project has these folders, but all projects have the freedom to define their own functionality.  
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>composability through familiarity</h2>
+                    <div class='blackbox'>
+                        <div class='buttonlist'>
+                            <div class='button'>start</div>                            
+                        </div>
+                        <div class='storage'>storage</div>
+                        <div class='portlist'>
+                            <div class='port out'>service</div>
+                            <div class='port in'>http</div>
+                        </div>
+                    </div>
+                </section>
+                <section style='text-align:center;'>
+                    <div class='blackbox-list'>
+                        <div class='blackbox'>
+                            <span>Database</span>
+                            <div class='buttonlist'>
+                                <div class='button'>start</div>                            
+                            </div>
+                            <div class='storage'>storage</div>
+                            <div class='portlist right'>                                
+                                <div class='port in'>sql</div>
+                            </div>
+                        </div>
+                        <div class='blackbox'>
+                            <span>Website</span>
+                            <div class='buttonlist'>
+                                <div class='button'>start</div>                            
+                            </div>                            
+                            <div class='portlist'>
+                                <div class='port out'>sql</div>
+                                <div class='port in'>http</div>
+                            </div>
+                        </div>      
+                        <div class='blackbox fragment wide'>
+                            <span>Proxy</span>
+                            <div class='buttonlist'>
+                                <div class='button'>start</div>                            
+                            </div>                       
+                            <div class='storage'>storage</div>     
+                            <div class='portlist'>
+                                <div class='port out'>http</div>
+                                <div class='port out'>http</div>
+                                <div class='port out'>http</div>
+                                <div class='port in'>http</div>
+                            </div>
+                        </div>                        
+                    </div>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>simplified deployment</h2>
+
+                    <ul class='absolute-fragment'>
+                        <li>deploy scripts</li>
+                        <li>deploy media</li>
+                        <li>adjust permissions</li>
+                        <li>migrate/seed data</li>
+                        <li>adjust webserver configs</li>
+                        <li>restart/reload service</li>
+                    </ul>
+
+                    <ul class='fragment'>
+                        <li class='strikethrough'>deploy scripts</li>
+                        <li class='strikethrough'>deploy media</li>
+                        <li class='strikethrough'>adjust permissions</li>
+                        <li class='strikethrough'>migrate/seed data</li>
+                        <li class='strikethrough'>adjust webserver configs</li>
+                        <li class='strikethrough'>restart/reload service</li>
+                        <li>deploy versioned image</li>
+                        <li>restart container</li>
+                    </ul>
+
+                    <aside class='notes'>
+                        Similar to the development side, we benefit from the consistency of the Docker platform.  All of our custom containers take a configuration file and custom Docker settings, like memory constraints, file mounts, port mappings, etc... But after the initial configuration, deployments are atomic and involve only updating the image.  At Nazareth we use Kubernetes, which manages scheduling containers to a cluster of servers and automatically scaling out services by creating additional instances, but it's just as effective to start Docker containers through scripts manually as well.
+                    </aside>
+                </section>
+                <section style='text-align:center;'>
+                    <h2>questions and examples</h2>
+                </section>
+			</div>
+        </div>
+        <script src="js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+        <script src="js/jquery-3.2.1.min.js"></script>
+        <script src="js/naz.js"></script>
+        <script src="js/highlight.pack.js"></script>
+		<script>            
+			Reveal.initialize({
+                //parallaxBackgroundImage: '/images/mario-1-1.gif',
+                //parallaxBackgroundSize: '3384px 224px',
+                dependencies: [
+					{ src: 'js/plugin/notes.js', async: true }
+				]
+            });            
+
+            var startingSlide = document.querySelector('section[selected]');
+            if(startingSlide) {
+                var parents = Array.prototype.slice.call(startingSlide.parentElement.children);                
+                Reveal.slide(parents.indexOf(startingSlide));
+            }            
+
+            hljs.initHighlightingOnLoad();
+		</script>
+	</body>
+</html>

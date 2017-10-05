@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Abort script at first error, follow the fail fast principle (https://en.wikipedia.org/wiki/Fail-fast)
+set -e
+
+# --- SETUP AND GLOBAL FUNCTIONS --- #
+# Program logic isn't evaluated yet.
+
+# The directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Set by the -d or -p flag
+MODE=""
+
+source "${DIR}/common"
+
+# Always call the error function on the ERR signal, this is used in conjuntion with set -e and gives us some
+# extra debugging information
+trap 'on_error ${LINENO}' ERR
+
+show_help() {
+    echo "
+Help and Usage
+-------------------------------------------------------------
+-h, --help                      Show this help window
+"
+}
+
+parse_command_options() {
+    while [[ $# -gt 0 ]]
+    do
+    key="$1"
+
+    case $key in
+        -h|--help)
+        show_help
+        exit
+        ;;
+        *)
+            # unknown option
+        ;;
+    esac
+    shift # past argument or value
+    done
+}
+
+# --- END SETUP AND GLOBAL FUNCTIONS --- #
+
+# --- SCRIPT LOGIC --- #
+# The program actually begins here, and mostly just calls the functions defined above
+
+parse_command_options $@
+
+echo "${BANNER}"
+
+echo -e "Purpose: Runs the presentation examples\n\n"
+
+$DIR/build-examples
+
+echo -e "\n --- \n"
+
+echo_inf "Running container \n"
+
+echo_inf "Step 1. Checking for prerequisite commands"
+assert_command_exists docker "To install Docker on your system, go to https://docs.docker.com/engine/installation/"
+assert_command_exists wc "wc is used in this script to measure line count"
+assert_command_exists realpath "realpath is used to determine a path to a resource"
+
+echo_inf "Step 2. Checking for image ${EXAMPLES_IMAGE_NAME}:${EXAMPLES_IMAGE_TAG}"
+
+# Uses docker images to check for the heweb image, if it doesn't exist the wc command will return 
+IMAGE_EXISTS=$(docker images "${EXAMPLES_IMAGE_NAME}:${EXAMPLES_IMAGE_TAG}" --format "{{.ID}}" | wc -l)
+if [ "${IMAGE_EXISTS}" == "0" ]; then
+    echo_err "  ${RED}!${RESTORE} Could not find image, run build script first"
+    exit 1
+fi
+echo_inf "  ${GREEN}✓${RESTORE} image found"
+
+EXAMPLES_SRC_DIR=$(realpath "${DIR}/../docker/Examples/examples")
+DOCKER_OPTS="run --privileged -i --name ${EXAMPLES_CONTAINER_NAME} -h ${EXAMPLES_CONTAINER_NAME} --rm -p ${EXAMPLES_CONTAINER_EXTERNAL_PORT}:80" 
+DOCKER_OPTS="${DOCKER_OPTS} -v /var/run/docker.sock:/var/run/docker.sock -v ${EXAMPLES_SRC_DIR}:/examples:ro -t ${EXAMPLES_IMAGE_NAME}:${EXAMPLES_IMAGE_TAG}"
+
+echo_inf "Step 3. Starting ${CYAN}${MODE}${RESTORE} image with options ${CYAN}${DOCKER_OPTS}${RESTORE}"
+
+echo ""
+echo_inf "You can exit the container by pressing CONTROL-D\n\n"
+docker $DOCKER_OPTS 

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "jsx": "react",    
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [],    
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "pretty": true,
+    "lib": [
+      "es2016",
+      "es2017.object",
+      "dom"
+    ],
+    "allowJs": true
+  },  
+  "files": [
+    "./app.tsx"    
+  ],
+  "paths": {
+    "*": [
+      "/workspace/src/frontend/*"
+    ]
+  }      
+}

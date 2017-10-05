@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Abort script at first error, follow the fail fast principle (https://en.wikipedia.org/wiki/Fail-fast)
+set -e
+
+# The directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+${DIR}/../run-php-environment php $@

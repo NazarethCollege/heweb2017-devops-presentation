@@ -1,0 +1,95 @@
+#!/bin/bash
+
+set -o pipefail
+
+# Bash can be modular, this script is included by other scripts and contains reusable functions and variables.
+
+# Silly banner for the scripts to show when they start
+BANNER="\
+ _   _ _______        _______ ____    ____   ___  _ _____    ___    _    ____ 
+| | | | ____\ \      / / ____| __ )  |___ \ / _ \/ |___  |  |_ _|  / \  / ___|
+| |_| |  _|  \ \ /\ / /|  _| |  _ \    __) | | | | |  / (_)  | |  / _ \| |    
+|  _  | |___  \ V  V / | |___| |_) |  / __/| |_| | | / / _   | | / ___ \ |___ 
+|_| |_|_____|  \_/\_/  |_____|____/  |_____|\___/|_|/_/ (_) |___/_/   \_\____|
+=============================================================================="
+
+PRESENTATION_IMAGE_NAME="naz/heweb-devops"
+PRESENTATION_CONTAINER_NAME="heweb-devops-presentation"
+PRESENTATION_CONTAINER_EXTERNAL_PORT="8080"
+PRESENTATION_IMAGE_TAG="0.3"
+
+TWEETHEAT_DEV_IMAGE_NAME="naz/heweb-tweetheat-dev"
+TWEETHEAT_DEV_CONTAINER_NAME="heweb-tweetheat-dev"
+TWEETHEAT_CONTAINER_EXTERNAL_PORT="8081"
+TWEETHEAT_IMAGE_TAG="0.3"
+
+# Variables for printing colored text
+# $() captures the output of a command, echo -en will allow you to evaluate escape codes and
+# will not print a newline at the end
+RESTORE=$(echo -en '\033[0m')
+RED=$(echo -en '\033[00;31m')
+GREEN=$(echo -en '\033[00;32m')
+YELLOW=$(echo -en '\033[00;33m')
+CYAN=$(echo -en '\033[00;36m')
+WHITE=$(echo -en '\033[01;37m')
+
+# Helper functions for printing colored text
+echo_err() {
+    echo -e "${RED}[ err ]  ${RESTORE}${1}"
+}
+
+echo_inf() {
+    echo -e "${YELLOW}[ inf ]  ${RESTORE}${1}"
+}
+
+echo_wrn() {
+    echo -e "${CYAN}[ wrn ]  ${RESTORE}${1}"
+}
+
+echo_ok() {
+    echo -e "${GREEN}[ ok  ]  ${RESTORE}${1}"
+}
+
+# Shows the line number and message where this script errored, very useful in BASH when used with set -e
+on_error() {
+  local parent_lineno="$1"
+  local message="$2"
+  local code="${3:-1}"
+  if [[ -n "$message" ]] ; then
+    echo_err "Error on or near line ${parent_lineno}: ${message}.  Exiting with code ${code}"
+  else
+    echo_err "Error on or near line ${parent_lineno}.  Exiting with code ${code}"
+  fi
+  exit "${code}"
+}
+
+# This expects two parameters, a command and help text to display if the command does not exist.
+assert_command_exists() {
+    # Gets the first argument passed to the function and assigns it to the CMD variable
+    CMD="${1}"
+    # Gets the second argument passed to the function
+    HELP_TEXT="${2}"
+    # String interpolation automatically inserts the messy character codes needed to change output color
+    CMD_TEXT="${CYAN}${CMD}${RESTORE}" 
+        
+    # Tests the command with the 'command' shell built-in.  If it returns 0 (True in BASH) it skips this
+    # block, if it returns > 0 (False in BASH) it will print the error and exit with 1
+    command -v $CMD &>/dev/null || {
+        echo_err "  ${RED}!${RESTORE} ${CMD_TEXT} - ${HELP_TEXT}"        
+        exit 1
+    }
+
+    echo_inf "  ${GREEN}✓${RESTORE} ${CMD_TEXT}"
+}
+
+# Expects a string to prepend and the rest of the arguments to be a command
+prepend_text_to_command() {
+    PREPENDED_TXT="${1}"
+    # Executes all arguments after the first one passed to this function and then
+    # prepends text to that command's STDOUT and STDERR
+    ${@:2} 2>&1 | while read line; do echo "${RESTORE}${PREPENDED_TXT} $line"; done
+}
+
+substep_text() {
+    prepend_text_to_command "           | " ${@:1}
+}

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [[ "$1" == "" ]]; then
+    echo "The first argument should be the address of the page to take a screenshot of"
+    exit 1
+fi 
+
+mkdir -p "${DIR}/screenshots"
+chown 999 "${DIR}/screenshots"
+
+FILE="$(date +"%s").png"
+
+docker run --rm -it --security-opt="seccomp=unconfined" -v ${DIR}/screenshots:/output tonious/chromeshot --url="$1" --full --delay=3000 --output=/output/${FILE}
+
+echo "File saved at ${DIR}/screenshots/${FILE}"

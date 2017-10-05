@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# Abort script at first error, follow the fail fast principle (https://en.wikipedia.org/wiki/Fail-fast)
+set -e
+
+# --- SETUP AND GLOBAL FUNCTIONS --- #
+# Program logic isn't evaluated yet.
+
+# The directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Set by the -d or -p flag
+MODE=""
+
+source "${DIR}/common"
+
+# Always call the error function on the ERR signal, this is used in conjuntion with set -e and gives us some
+# extra debugging information
+trap 'on_error ${LINENO}' ERR
+
+show_help() {
+    echo "
+Help and Usage
+-------------------------------------------------------------
+-h, --help                      Show this help window
+-d, --dev                       Run in developer mode
+-p, --prod                      Run in production mode
+-ck, --consumerkey              Twitter consumer key
+-cs, --consumersecret           Twitter consumer secret
+-at, --accesstoken              Twitter access token
+-as, --accesssecret             Twitter access secret
+"
+}
+
+parse_command_options() {
+    while [[ $# -gt 0 ]]
+    do
+    key="$1"
+
+    case $key in
+        -h|--help)
+        show_help
+        exit
+        ;;
+        -d|--dev)
+        MODE="dev"
+        ;;
+        -p|--p)
+        MODE="prod"
+        ;;
+        -ck|--consumerkey)
+        CONSUMER_KEY="$2"
+        shift
+        ;;
+        -cs|--consumersecret)
+        CONSUMER_SECRET="$2"
+        shift
+        ;;
+        -at|--accesstoken)
+        ACCESS_TOKEN="$2"
+        shift
+        ;;
+        -as|--accesssecret)
+        ACCESS_SECRET="$2"
+        shift
+        ;;
+        *)
+            # unknown option
+        ;;
+    esac
+    shift # past argument or value
+    done
+}
+
+# --- END SETUP AND GLOBAL FUNCTIONS --- #
+
+# --- SCRIPT LOGIC --- #
+# The program actually begins here, and mostly just calls the functions defined above
+
+parse_command_options $@
+
+echo "${BANNER}"
+
+echo -e "Purpose: Runs the docker image in dev or production mode\n\n"
+
+echo_inf "Step 1. Checking for prerequisite commands"
+assert_command_exists docker "To install Docker on your system, go to https://docs.docker.com/engine/installation/"
+assert_command_exists wc "wc is used in this script to measure line count"
+assert_command_exists realpath "realpath is used to determine a path to a resource"
+
+echo_inf "Step 2. Asserting script was called correctly"
+
+# Assert that MODE was set, we need to know if this is a development or production environment to set up
+# options for docker run
+if [ "${MODE}" == "" ]; then
+    echo_err "mode must be set"
+    show_help
+    exit 1
+fi
+echo_inf "  ${GREEN}✓${RESTORE} MODE variable set"
+
+for v in "CONSUMER_KEY" "CONSUMER_SECRET" "ACCESS_TOKEN" "ACCESS_SECRET"; do
+    if [ "${!v}" == "" ]; then
+        echo_err "${v} must be set"
+        show_help 
+        exit 1
+    fi
+    echo_inf "  ${GREEN}✓${RESTORE} ${v} variable set"
+done
+
+echo_inf "Step 3. Building image for mode: ${MODE}"
+
+if [[ "${MODE}" == "dev" ]]; then
+    substep_text $DIR/build-tweetheat-dev
+fi
+
+DOCKER_OPTS="run -i -h tweetheat --rm -p ${TWEETHEAT_CONTAINER_EXTERNAL_PORT}:8080 -e TWEETHEAT_CONSUMER_KEY=${CONSUMER_KEY} -e TWEETHEAT_CONSUMER_SECRET=${CONSUMER_SECRET} -e TWEETHEAT_ACCESS_TOKEN=${ACCESS_TOKEN} -e TWEETHEAT_ACCESS_SECRET=${ACCESS_SECRET}"
+IMAGE_NAME="${TWEETHEAT_IMAGE_NAME}"
+if [ "${MODE}" == "dev" ]; then
+    WWW_SRC_DIR=$(realpath "${DIR}/../sites/tweetheat")
+    DOCKER_OPTS="${DOCKER_OPTS}  -v ${WWW_SRC_DIR}:/workspace/"    
+    IMAGE_NAME="${TWEETHEAT_DEV_IMAGE_NAME}"
+fi
+DOCKER_OPTS="${DOCKER_OPTS} -t ${IMAGE_NAME}:${TWEETHEAT_IMAGE_TAG}"
+
+echo_inf "Step 4. Starting ${CYAN}${MODE}${RESTORE} image"
+if [ "${MODE}" == "dev" ]; then
+    # WWW_SRC_DIR is defined in the previous if statement
+    echo_wrn "  ${YELLOW}⚠${RESTORE} dev mode mounts src directory at ${CYAN}${WWW_SRC_DIR}${RESTORE}, this overlays any content in the image"
+fi
+
+echo ""
+echo_inf "You can exit this script by pressing CONTROL-C or CONTROL-D if at a terminal prompt\n\n"
+docker $DOCKER_OPTS 

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+pushd /workspace/src/backend/tweetheat/server &>/dev/null
+/usr/lib/go-1.8/bin/go run ./main.go

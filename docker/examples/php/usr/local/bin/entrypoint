@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -o allexport
+
+cd /srv
+
+# Add user with same UID and GID as calling script
+
+useradd --shell /bin/bash -u $UID -o -c "" -m developer -b /home
+echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+pushd /srv &>/dev/null
+
+if [ "$#" == "0" ]; then
+    exec sudo -E -H -u developer php7.0 -S 0.0.0.0:8080
+fi
+
+exec sudo -E -H -u developer $@

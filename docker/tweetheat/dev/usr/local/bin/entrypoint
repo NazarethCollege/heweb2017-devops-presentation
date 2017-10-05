@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -o allexport
+. /etc/environment
+
+# Write config at /etc/tweetheat/server.json by environment variables
+mkdir -p /workspace/tmp/database/
+mkdir -p /etc/tweetheat
+
+cat > /etc/tweetheat/server.json <<- EOM
+{
+    "DataBasePath" : "/workspace/tmp/database/tweetheat",
+    "AccessToken" : "${TWEETHEAT_ACCESS_TOKEN}",
+    "AccessSecret" : "${TWEETHEAT_ACCESS_SECRET}",
+    "ConsumerKey" : "${TWEETHEAT_CONSUMER_KEY}",
+    "ConsumerSecret" : "${TWEETHEAT_CONSUMER_SECRET}",
+    "SearchFilter" : "place:61c225139f635563 -filter:retweets"
+}
+EOM
+
+echo -e "================================================================================
+
+You are now in a build container.  This container provides
+the environment necessary to build and test the application.
+
+The following commands have been added to the path:
+
+    dev.run-tests               Runs unit tests for the webserver
+    dev.work-on-backend         Recompiles and starts the go server at port 8080
+    dev.work-on-frontend        Starts webserver and webpack and compiles 
+                                the output to /workspace/build
+
+A typical workflow will be to execute unit tests
+
+    dev.run-tests
+
+Then test the endpoint manually
+
+    dev.work-on-backend
+
+After you have verified the backend works, you'll want to work on the UI
+
+    dev.work-on-frontend
+    
+================================================================================\n"
+
+exec /bin/bash

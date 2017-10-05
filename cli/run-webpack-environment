@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Abort script at first error, follow the fail fast principle (https://en.wikipedia.org/wiki/Fail-fast)
+set -e
+
+# The directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DOCKERFILE_DIR="${DIR}/../docker/examples/webpack"
+TAG="naz/iac-webpack-component:latest"
+
+source "${DIR}/common"
+
+# Always call the error function on the ERR signal, this is used in conjuntion with set -e and gives us some
+# extra debugging information
+trap 'on_error ${LINENO}' ERR
+
+echo_inf "Step 1. Checking for prerequisite commands"
+assert_command_exists docker "To install Docker on your system, go to https://docs.docker.com/engine/installation/"
+
+echo_inf "Step 2. Building image"
+substep_text docker build -t "${TAG}" "${DOCKERFILE_DIR}"
+
+echo_inf "Step 3. Running image"
+docker kill webpack-component &>/dev/null || true
+docker rm webpack-component &>/dev/null || true
+
+docker run --name "webpack-component" -e UID=$UID -e GID=$GID --rm -v "`pwd`:/opt/webpack/input" -v "${WEBPACK_OUTPUT_DIR}:/opt/webpack/output" -it "${TAG}" --output-path=/opt/webpack/output

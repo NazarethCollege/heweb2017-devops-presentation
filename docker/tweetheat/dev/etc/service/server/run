@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+. /etc/environment
+exec dev.work-on-backend

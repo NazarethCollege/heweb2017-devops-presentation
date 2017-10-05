@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Abort script at first error, follow the fail fast principle (https://en.wikipedia.org/wiki/Fail-fast)
+set -e
+
+# --- SETUP AND GLOBAL FUNCTIONS --- #
+# Program logic isn't evaluated yet.
+
+# The directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DOCKERFILE_DIR="${DIR}/../docker/presentation"
+
+source "${DIR}/common"
+
+# Always call the error function on the ERR signal, this is used in conjuntion with set -e and gives us some
+# extra debugging information
+trap 'on_error ${LINENO}' ERR
+
+# --- END SETUP AND GLOBAL FUNCTIONS --- #
+
+# --- SCRIPT LOGIC --- #
+# The program actually begins here, and mostly just calls the functions defined above
+
+echo_inf "Step 1. Checking for prerequisite commands"
+assert_command_exists docker "To install Docker on your system, go to https://docs.docker.com/engine/installation/"
+
+echo_inf "Step 2. Building docker image"
+substep_text docker build -t "${PRESENTATION_IMAGE_NAME}:latest" "${DOCKERFILE_DIR}"
+
+echo_inf "Step 3. Tagging docker image"
+substep_text docker tag "${PRESENTATION_IMAGE_NAME}:latest" "${PRESENTATION_IMAGE_NAME}:${PRESENTATION_IMAGE_TAG}" && substep_text echo "image tagged with ${CYAN}${PRESENTATION_IMAGE_NAME}:${PRESENTATION_IMAGE_TAG}${RESTORE}"
+
+echo ""
+echo_ok "Build completed successfully!"

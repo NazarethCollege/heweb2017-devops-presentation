@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Abort script at first error, follow the fail fast principle (https://en.wikipedia.org/wiki/Fail-fast)
+set -e
+set -o pipefail
+
+if [[ ! "$#" == "1" ]]; then
+    echo "The webpack component takes one argument: a path to the build directory"
+    exit 1
+fi
+
+# The directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+OUTPUT=`realpath $1`
+
+WEBPACK_OUTPUT_DIR="$OUTPUT" ${DIR}/../run-webpack-environment 
