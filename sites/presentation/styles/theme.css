@@ -505,6 +505,77 @@ display:inline-block;
 margin:5em;
 }
 
+.docker-layer-example.empty .layer {
+  visibility:hidden;
+}
+
+.docker-layer-example .layer-box {
+  position:absolute;
+  left:65%;
+  right:0;
+  top:.6em;;
+  bottom:-.6em;
+  border:.125em solid #FFF;
+}
+
+.docker-layer-example > div {
+  margin-bottom:.5em;
+}
+
+.docker-layer-example {
+ position:relative;
+ padding-top:1em !important;
+}
+
+.docker-layer-example.empty {
+  position:absolute;
+  width:100%; 
+}
+
+.docker-layer-example .code-line {
+  text-align:left;
+  display:inline-block;
+  height:.125em;
+  width:60%;
+}
+
+.docker-layer-example .code-line span {
+  display:inline-block;
+  width:50%;
+  opacity:.25;
+}
+
+.docker-layer-example .visible span {
+  opacity:.5;
+}
+
+.docker-layer-example .current-fragment span {
+  opacity:1;
+}
+
+.docker-layer-example .code-line span+span {
+  width: 48%;
+}
+
+.docker-layer-example .layer {
+  display: inline-block;
+    height: 1.5em;
+    margin-left: .9em;
+    margin-bottom: -.5em;
+    width: 32%;
+    background: #FFF;
+}
+
+.reveal .footnote {
+  width:100%;
+  font-size: .5em;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: .5;
+  bottom: -3em;
+}
+
 @keyframes packet-pulse {
 from {
   left: -.1em;

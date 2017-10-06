@@ -3134,7 +3134,6 @@
 					// present
 					if( isMobileDevice ) {
 						video.muted = true;
-						video.autoplay = true;
 						video.setAttribute( 'playsinline', '' );
 					}
 
@@ -3142,6 +3141,8 @@
 					backgroundVideo.split( ',' ).forEach( function( source ) {
 						video.innerHTML += '<source src="'+ source +'">';
 					} );
+
+					video.setAttribute("controls", '');
 
 					background.appendChild( video );
 				}
