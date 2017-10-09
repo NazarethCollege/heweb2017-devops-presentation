@@ -55,7 +55,7 @@ ADD etc /etc
 
 ARG version
 
-RUN echo "INSTAMAP_VERSION=${version}" > /etc/environment && \
+RUN echo "TWEETHEAT_VERSION=${version}" > /etc/environment && \
     echo "GOPATH=/workspace/src/backend/vendor" >> /etc/environment && \
     chmod +x /etc/environment
 

@@ -37,7 +37,7 @@ display:block;
 position:fixed;
 top:15px;
 left:15px;
-background:url('/media/naz-logo.png');
+background:url('../media/naz-logo.png');
 background-size:cover;
 }
 

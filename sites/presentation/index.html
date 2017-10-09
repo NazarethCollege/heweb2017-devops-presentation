@@ -23,6 +23,9 @@
 			<div class="slides">
                 <section style='text-align:center;'>
                     <h2>DevOps: Infrastructure as Code</h2>
+                    <div class='footnote'>
+                        https://github.com/NazarethCollege/heweb2017-devops-presentation
+                    </div>
                     <aside class='notes'>
                         Hello, my name's Dave Lafferty.  I've been working at Nazareth College as a Senior Web Developer for a little over 5 years, and I write beautiful, elegent code.
                     </aside>
@@ -172,19 +175,6 @@
                     </aside>
                 </section>
                 <section style='text-align:center;'>
-                    <div style='width:20em;height:17em;text-align:center;margin:auto;'>
-                        <img src='media/turbotouch.jpg' height='100%' />
-                        <img class='fragment' src='media/snes-overlay.png' height='100%' style='transform: translateY(-100%);margin-top: -.7em;' />
-                    </div>
-                    <aside class='notes'>
-                        [http://www.ign.com/articles/2006/02/22/top-10-tuesday-worst-game-controllers]
-                            
-                        Another example is game controllers.  This is an alternate controller for the super nintendo.  It boasted a better D-PAD for your thumb so you'd get less muscle fatigue and turbo toggles for the buttons.  It was ranked as the ninth worst video game controller by IGN in 2006.  But it isn't inherently worse, it's just different and gamers had become used to the weight, fit and feel of the licensed gamepads.  They had learned familiarity and this gamepad violated too many of the ingrained habits gamers had developed.  It's not that a d-pad and buttons are the most intuitive way to interact with a game, users were just familiar with the classic super nintendo controller.
-
-                        For reference, here's a rough outline of the classic controller from a similar perspective.
-                    </aside>
-                </section>
-                <section style='text-align:center;'>
                     <h2>familiarity, not intuitiveness</h2>
                     <ul class='nobullet'>
                         <li class='fragment'>applications feel similar</li>
@@ -300,7 +290,7 @@
                     </div>
 
                     <aside class='notes'>
-                        The other methodology is to embed all your dependencies alongside your application.  Desktop apps have been doing this for decades  This is the containerization philosophy, and we do this at Nazareth through Docker.  For example, your website becomes one stateless binary-like package that embeds PHP, an application server, dependencies like openssl/curl/libxml, and any helper scripts.  You then build your application declaratively and completely replace your application and dependencies each time you deploy, since everything is wrapped up in one package.  
+                        The other methodology is to embed all your dependencies alongside your application.  This is the containerization philosophy, and we do this at Nazareth through Docker.  For example, your website becomes one stateless binary-like package that embeds PHP, an application server, dependencies like openssl/curl/libxml, and any helper scripts.  You then build your application declaratively and completely replace your application and dependencies each time you deploy, since everything is wrapped up in one package.  
                     </aside>
                 </section>
                 <section style='text-align:center;'>
@@ -376,7 +366,7 @@
                     </div>
 
                     <aside class='notes'>
-                        So we recognized that this is the way we want to build applications, and the technology we use to accomplish this is Docker.
+                        So we recognized that this is the way we want to build applications.
 
                         Docker is mostly a wrapper over established technologies.  When starting out you can think of Docker as creating little lightweight virtual machines called images that run on the Docker platform.  They're not quite as isolated as a virtual machine but they're pretty self-contained and much more lightweight.  
 
@@ -447,7 +437,7 @@ EXPOSE 8080</code></pre>
                     
                 </section>
                 <section style='text-align:center;'>
-                    <h2>composability through familiarity</h2>
+                    <h2>composability through interfaces</h2>
                     <div class='blackbox'>
                         <div class='buttonlist'>
                             <div class='button'>start</div>                            
@@ -464,10 +454,10 @@ EXPOSE 8080</code></pre>
                         <div class='blackbox'>
                             <span>Database</span>
                             <div class='buttonlist'>
-                                <div class='button'>start</div>                            
+                                <div class='button'>start</div>
                             </div>
                             <div class='storage'>storage</div>
-                            <div class='portlist right'>                                
+                            <div class='portlist right'>
                                 <div class='port in'>sql</div>
                             </div>
                         </div>
@@ -525,6 +515,13 @@ EXPOSE 8080</code></pre>
                 </section>
                 <section style='text-align:center;'>
                     <h2>questions and examples</h2>
+                </section>
+                <section style='text-align:center;' selected>
+                    <h2>further reading</h2>
+                    <ul class='resourcelist'>
+                        <li>Docker: https://github.com/veggiemonk/awesome-docker</li>
+                        <li>Ansible: https://www.ansible.com</li>
+                    </ul>
                 </section>
 			</div>
         </div>

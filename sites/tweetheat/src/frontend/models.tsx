@@ -14,7 +14,8 @@ export class APIResponse<T> {
     Data: T
 }
 
-export type TagHistoryResponse = APIResponse<Map<EpochSeconds, TagHistory>>
+export type TagHistoryByEpoch = Map<EpochSeconds, TagHistory>;
+export type TagHistoryResponse = APIResponse<TagHistoryByEpoch>;
 
 export enum FetchState {
     Idle,

@@ -171,7 +171,7 @@ func (api *API) GetTwitterTagHistory() (history map[int64]*contracts.TagHistory,
 		return nil, err
 	}
 
-	rows, err := db.Debug().Model(&database.Tag{}).
+	rows, err := db.Model(&database.Tag{}).
 		Select("lower(name) as TagName, count(lower(name)) as TagCount, strftime('%Y-%m-%dT%H:00:00Z', tweets.created_at) as TimePartition").
 		Joins("JOIN media_tags on media_tags.tag_id = tags.id").
 		Joins("JOIN tweets on tweets.id = media_tags.tweet_id").
