@@ -309,7 +309,7 @@
 
 			<div class="speaker-controls-notes hidden">
 				<h4 class="label">Notes</h4>
-				<div class="value"></div>
+				<div class="value" style='white-space:pre-wrap;'></div>
 			</div>
 		</div>
 		<div id="speaker-layout" class="overlay-element interactive">
@@ -401,7 +401,7 @@
 					// No need for updating the notes in case of fragment changes
 					if ( data.notes ) {
 						notes.classList.remove( 'hidden' );
-						notesValue.style.whiteSpace = data.whitespace;
+						//notesValue.style.whiteSpace = data.whitespace;
 						if( data.markdown ) {
 							notesValue.innerHTML = marked( data.notes );
 						}

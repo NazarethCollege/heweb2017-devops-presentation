@@ -3,7 +3,7 @@ screenshots/
 tmp
 build/*
 .vscode
-
+*/build
 *.exe
 *.dll
 *.so
