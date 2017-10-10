@@ -1,4 +1,4 @@
-var isProd = false;
+var isProd = process.env.TWEETHEAT_ENV == 'prod';
 var version = process.env.TWEETHEAT_VERSION;
 
 var HtmlWebpackPlugin = require('html-webpack-plugin');

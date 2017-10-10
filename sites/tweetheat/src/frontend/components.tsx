@@ -183,7 +183,7 @@ export class TagHistoryGraph extends React.Component<TagHistoryGraphProperties, 
                     return d[key] || null;
                 })
                 .order(d3.stackOrderNone)
-                .offset(d3.stackOffsetSilhouette);
+                .offset(d3.stackOffsetWiggle);
             
             // Create the tag layer data out of its stack definition
             let tagLayer = stack(data),
